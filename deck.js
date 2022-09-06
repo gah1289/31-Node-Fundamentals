@@ -39,17 +39,36 @@ function makeCard(img) {
 let $draw = $('#drawCard');
 let $deck = $('.cards');
 
-let deckId = $(document).ready(async function() {
-	let deck = await $.getJSON('https://www.deckofcardsapi.com/api/deck/new/draw/');
-	let deckId = deck.deck_id;
-	$draw.click(async function() {
-		let deck = await $.getJSON(`https://www.deckofcardsapi.com/api/deck/${deckId}/draw/`);
-		console.log(deck);
-		if (deck.remaining == 0) {
-			alert('Deck is out of cards!');
-		}
-		console.log(deck.remaining);
-		img = deck.cards[0].image;
-		$deck.append(makeCard(img));
-	});
+let deckId = $(document).ready(function() {
+	axios
+		.get('https://www.deckofcardsapi.com/api/deck/new/draw/')
+		.then((getDeckId) => {
+			let deckId = getDeckId.data.deck_id;
+			return `https://www.deckofcardsapi.com/api/deck/${deckId}/draw/`;
+		})
+		.then((getCard) => {
+			$draw.click((card) => {
+				axios.get(getCard).then((showCard) => {
+					img = showCard.data.cards[0].image;
+					$deck.append(makeCard(img));
+				});
+			});
+		});
 });
+
+// I accidently did async/await for the first assignment, so above is the answer using Promises.
+
+// let deckId = $(document).ready(async function() {
+// 	let deck = await $.getJSON('https://www.deckofcardsapi.com/api/deck/new/draw/');
+// 	let deckId = deck.deck_id;
+// 	$draw.click(async function() {
+// 		let deck = await $.getJSON(`https://www.deckofcardsapi.com/api/deck/${deckId}/draw/`);
+// 		console.log(deck);
+// 		if (deck.remaining == 0) {
+// 			alert('Deck is out of cards!');
+// 		}
+// 		console.log(deck.remaining);
+// 		img = deck.cards[0].image;
+// 		$deck.append(makeCard(img));
+// 	});
+// });
